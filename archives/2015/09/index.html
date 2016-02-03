@@ -27,6 +27,20 @@
                     href="/about">About</a>
         </ul>
     </nav>
+    <a id="right-panel-link" href="#right-panel"></a>
+    <div id="right-panel" class="panel">
+        <ul class="mod-head__ul">
+            <li id="menu-item-6" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-6"><a
+                    href="/">Home</a><span>·</span></li>
+            <li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a
+                    href="/archives">Blog</a><span>·</span></li>
+            <li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a
+                    href="/about">About</a>
+        </ul>
+    <button id="close-panel-bt">Close</button>
+    </div>
+    <script src="/js/jquery.panelslider.min.js"></script>
+    <script>$('#right-panel-link').panelslider({side: 'right', duration: 200 });$('#close-panel-bt').click(function() {$.panelslider.close();});</script>
 </header> 
 
 <article class="mod-archive">
