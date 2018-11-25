@@ -1,27 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  
-  <title><![CDATA[Tiger Forest]]></title>
-  <subtitle><![CDATA[Nowhere else that I belong than here with you]]></subtitle>
-  <link href="/atom.xml" rel="self"/>
-  <link href="http://tigerforest.github.io//"/>
-  <updated>2018-11-25T11:24:04.570Z</updated>
-  <id>http://tigerforest.github.io//</id>
-  
-  <author>
-    <name><![CDATA[Tigerforest]]></name>
-    
-  </author>
-  
-  <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title><![CDATA[理解 Lex & Yacc]]></title>
-    <link href="http://tigerforest.github.io/2018/11/24/goyacc/"/>
-    <id>http://tigerforest.github.io/2018/11/24/goyacc/</id>
-    <published>2018-11-24T00:42:00.000Z</published>
-    <updated>2018-11-25T11:24:04.570Z</updated>
-    <content type="html"><![CDATA[<p>最近在学习一款 NewSQL 数据库 TiDB，TiDB 使用 Lex &amp; Yacc 方式实现了对 SQL 语句的解析。</p>
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Fusu</title>
+    <link rel="stylesheet" href="/css/style.css" media="screen"
+          type="text/css">
+    <!-- <link href="/img/favicon.ico" rel="icon"> -->
+    <script type="text/javascript" src="/js/jquery.js"></script>
+</head>
+<body>
+<header class="mod-head">
+    <h1 class="mod-head__title"><a href="/">Fusu</a></h1>
+    <div class="mod-head__logo">
+        <a href="/">
+            <img class="avatar" src="/img/avatar.png" alt=""
+                 width="26" height="26">
+        </a>
+    </div>
+    <nav class="mod-head__nav">
+        <ul class="mod-head__ul">
+            <li id="menu-item-6" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-6"><a
+                    href="/">Home</a><span>·</span></li>
+            <li id="menu-item-16" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16"><a
+                    href="/archives">Blog</a><span>·</span></li>
+            <li id="menu-item-19" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-19"><a
+                    href="/about">About</a>
+        </ul>
+    </nav>
+</header>
+ 
+<article class="mod-post mod-post__type-post">
+    <header>
+        <h1 class="mod-post__title">理解 Lex & Yacc</h1>
+    </header>
+    <div class="mod-post__entry wzulli"><p>最近在学习一款 NewSQL 数据库 TiDB，TiDB 使用 Lex &amp; Yacc 方式实现了对 SQL 语句的解析。</p>
 <h3 id="Lex_&amp;_Yacc">Lex &amp; Yacc</h3><p><a href="http://dinosaur.compilertools.net" target="_blank" rel="noopener">Lex &amp; Yacc</a> 分别是用来生成词法分析器和语法分析器的工具。</p>
 <p><img src="/img/CompilationSequence.png" width="510px" title="编译流程"></p>
 <p>上图是使用 Lex &amp; Yacc 解析 a = b + c * d 这段代码的流程。Lex 根据已定义的 patterns 生成词法分析器，将上面的代码解析为 id1 = id2 + id3 * id4 的 tokens。Yacc 根据已定义的 grammer 生成语法分析器，语法分析器以 Lex 输出的 tokens 作为输入，将 tokens 解析为语法树，最后对语法树进行遍历输出结果。</p>
@@ -65,126 +77,26 @@
 <p>输入：</p>
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VAR abc<span class="comment">;</span></span><br></pre></td></tr></table></figure>
 <p>输出：</p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Line</span> 1, Column 5: <span class="string">"abc"</span> <span class="keyword">syntax</span> <span class="keyword">error</span></span><br></pre></td></tr></table></figure>]]></content>
-    <summary type="html">
-    <![CDATA[goyacc]]>
-    
-    </summary>
-    
-      <category term="goyacc" scheme="http://tigerforest.github.io/tags/goyacc/"/>
-    
-      <category term="goyacc" scheme="http://tigerforest.github.io/categories/goyacc/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[感谢支持]]></title>
-    <link href="http://tigerforest.github.io/2016/01/14/thank/"/>
-    <id>http://tigerforest.github.io/2016/01/14/thank/</id>
-    <published>2016-01-14T11:28:45.000Z</published>
-    <updated>2016-04-15T06:28:55.000Z</updated>
-    <content type="html"><![CDATA[<p>感谢 Crazy uncle。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[感谢]]>
-    
-    </summary>
-    
-      <category term="日志" scheme="http://tigerforest.github.io/tags/%E6%97%A5%E5%BF%97/"/>
-    
-      <category term="日志" scheme="http://tigerforest.github.io/categories/%E6%97%A5%E5%BF%97/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[我的英国旅行]]></title>
-    <link href="http://tigerforest.github.io/2015/09/03/UKTravel/"/>
-    <id>http://tigerforest.github.io/2015/09/03/UKTravel/</id>
-    <published>2015-09-02T16:49:00.000Z</published>
-    <updated>2018-11-25T11:29:20.487Z</updated>
-    <content type="html"><![CDATA[<p>已删除</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[英国旅行]]>
-    
-    </summary>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/tags/%E6%97%85%E6%B8%B8/"/>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/categories/%E6%97%85%E6%B8%B8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[上海申请英国个人旅游签证分享]]></title>
-    <link href="http://tigerforest.github.io/2015/07/30/UKVisa/"/>
-    <id>http://tigerforest.github.io/2015/07/30/UKVisa/</id>
-    <published>2015-07-29T20:30:00.000Z</published>
-    <updated>2018-11-25T11:29:29.135Z</updated>
-    <content type="html"><![CDATA[<p>已删除</p>
-<h2 id="附录">附录</h2><ul>
-<li><a href="https://www.gov.uk/government/publications/apply-for-a-uk-visa-in-china/--2" target="_blank" rel="noopener">英国签证申请流程</a></li>
-<li><a href="https://www.visa4uk.fco.gov.uk/home/welcome" target="_blank" rel="noopener">英国签证在线申请材料账号注册</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[英国旅游签证申请]]>
-    
-    </summary>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/tags/%E6%97%85%E6%B8%B8/"/>
-    
-      <category term="Visa" scheme="http://tigerforest.github.io/tags/Visa/"/>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/categories/%E6%97%85%E6%B8%B8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Mockito+Spring 集成单元测试]]></title>
-    <link href="http://tigerforest.github.io/2015/07/13/mockito/"/>
-    <id>http://tigerforest.github.io/2015/07/13/mockito/</id>
-    <published>2015-07-13T01:49:45.000Z</published>
-    <updated>2018-11-25T11:28:57.080Z</updated>
-    <content type="html"><![CDATA[<p>已删除</p>
-<h2 id="附录">附录</h2><ul>
-<li><a href="http://liuzhijun.iteye.com/blog/1512780" target="_blank" rel="noopener">Mockito 是什么?</a></li>
-<li><a href="http://www.cnblogs.com/syxchina/p/4150879.html" target="_blank" rel="noopener">spring中使用mockito</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[Mockito+Spring 集成单元测试]]>
-    
-    </summary>
-    
-      <category term="Mockito" scheme="http://tigerforest.github.io/tags/Mockito/"/>
-    
-      <category term="Spring" scheme="http://tigerforest.github.io/tags/Spring/"/>
-    
-      <category term="单元测试" scheme="http://tigerforest.github.io/categories/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Retrofit 源码解析]]></title>
-    <link href="http://tigerforest.github.io/2015/07/09/retrofit/"/>
-    <id>http://tigerforest.github.io/2015/07/09/retrofit/</id>
-    <published>2015-07-09T15:20:45.000Z</published>
-    <updated>2018-11-25T11:29:05.000Z</updated>
-    <content type="html"><![CDATA[<p>已删除</p>
-<p><a href="http://square.github.io/retrofit/" target="_blank" rel="noopener">A type-safe REST client for Android and Java</a></p>
-]]></content>
-    <summary type="html">
-    <![CDATA[Retrofit 源码解析]]>
-    
-    </summary>
-    
-      <category term="Android" scheme="http://tigerforest.github.io/tags/Android/"/>
-    
-      <category term="Java" scheme="http://tigerforest.github.io/tags/Java/"/>
-    
-      <category term="源码解析" scheme="http://tigerforest.github.io/categories/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    
-  </entry>
-  
-</feed>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Line</span> 1, Column 5: <span class="string">"abc"</span> <span class="keyword">syntax</span> <span class="keyword">error</span></span><br></pre></td></tr></table></figure></div>
+    <div class="mod-post__meta">
+        <div>
+            <div>
+                — 于
+                <time datetime="2012年03月11日 01:37:13">2015年01月19日</time>
+            </div>
+            <!-- <div>— 文内使用到的标签：<span class="mod_tag"></span></div> -->
+        </div>
+    </div>
+</article>
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/11/24/goyacc/" data-title="理解 Lex & Yacc" data-url="http://tigerforest.github.io/2018/11/24/goyacc/"></div>
+</section>
+
+
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+<!-- <footer class="mod-footer" role="contentinfo" id="footer_in">
+    <p class="f_bq">Fusuxia 2015 - 2016</p>
+</footer> -->
+
+</body></html>
+ 

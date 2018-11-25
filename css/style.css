@@ -1,4 +1,4 @@
-/*  
+/*
 Theme Name: abctheme
 Theme URI: http://www.2zzt.com
 Description: 爱找主题专业定制，高视觉，高效率
@@ -29,7 +29,7 @@ html {
 }
 
 body {
-    max-width: 700px;
+    max-width: 80%;
     padding: 0 20px;
     font: 400 16px/1.7 Georgia, "Xin Gothic", "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
     color: #444;
