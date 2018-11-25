@@ -5,7 +5,7 @@
   <subtitle><![CDATA[Nowhere else that I belong than here with you]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://tigerforest.github.io//"/>
-  <updated>2018-11-25T11:24:04.570Z</updated>
+  <updated>2018-11-25T11:53:41.405Z</updated>
   <id>http://tigerforest.github.io//</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://tigerforest.github.io/2018/11/24/goyacc/"/>
     <id>http://tigerforest.github.io/2018/11/24/goyacc/</id>
     <published>2018-11-24T00:42:00.000Z</published>
-    <updated>2018-11-25T11:24:04.570Z</updated>
+    <updated>2018-11-25T11:53:41.405Z</updated>
     <content type="html"><![CDATA[<p>最近在学习一款 NewSQL 数据库 TiDB，TiDB 使用 Lex &amp; Yacc 方式实现了对 SQL 语句的解析。</p>
 <h3 id="Lex_&amp;_Yacc">Lex &amp; Yacc</h3><p><a href="http://dinosaur.compilertools.net" target="_blank" rel="noopener">Lex &amp; Yacc</a> 分别是用来生成词法分析器和语法分析器的工具。</p>
 <p><img src="/img/CompilationSequence.png" width="510px" title="编译流程"></p>
@@ -53,7 +53,7 @@
 <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">声明</span><br><span class="line"><span class="meta">%</span><span class="meta">%</span></span><br><span class="line">规则</span><br><span class="line"><span class="meta">%</span><span class="meta">%</span></span><br><span class="line">程序</span><br></pre></td></tr></table></figure>
 <p>下面这些都是 Yacc 语法文件关键字，只列出了需要用到的：</p>
 <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">%<span class="class"><span class="keyword">union</span> /* 将 <span class="title">yacc</span> 值堆栈标识为所需值的各种不同类型的并集 */</span></span><br><span class="line">%<span class="keyword">type</span> /* 标识非终止符的类型 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%token /</span>* 标识 yacc 命令接受的标记名称 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%left /</span>* 标识与其他标记左关联的标记 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%right /</span>* 标识与其他标记右关联的标记 *<span class="regexp">/</span></span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 的声明部分引入 go 代码定义了 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L9" target="_blank" rel="noopener">Token</a> 结构，有三个属性，正好就是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法输出的结果。Goyacc 会根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的定义来生成 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 结构，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 主要作用是获取当前解析到的字符串对象。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type<statements> statements</statements></a> 尖括号中的 <code>statements</code> 实际上是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L18" target="_blank" rel="noopener">statements</a>，类型是 <code>[]Statement</code>，而 <code>Statement</code> 是在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/ast.go" target="_blank" rel="noopener">ast.go</a> 中定义的。所以 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type<statements> statements</statements></a> 就是定义了一个名为 statements，类型为 ast.Statement 数组的标记。后面几个 %type 和 %token 都可以这么理解。<code>%left</code> 左关联标记，表示表达式的左边部分，需要再加上 lexer.go 产生的一个 token 构成右边部分，才可以组成一个完整的表达式。这里 <code>%left</code> 指定了运算符 <code>*</code>、 <code>/</code> 和 <code>%</code> 的优先级高于 <code>+</code> 和 <code>-</code>。在 yacc 中后面定义的行优先级会高于前面的行，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L32" target="_blank" rel="noopener">%right UNARY</a> 是处理负数的标记，优先级最高。</p>
+<p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 的声明部分引入 go 代码定义了 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L9" target="_blank" rel="noopener">Token</a> 结构，有三个属性，正好就是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法输出的结果。Goyacc 会根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的定义来生成 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 结构，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 主要作用是获取当前解析到的字符串对象。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 尖括号中的 <code>statements</code> 实际上是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L18" target="_blank" rel="noopener">statements</a>，类型是 <code>[]Statement</code>，而 <code>Statement</code> 是在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/ast.go" target="_blank" rel="noopener">ast.go</a> 中定义的。所以 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 就是定义了一个名为 statements，类型为 ast.Statement 数组的标记。后面几个 %type 和 %token 都可以这么理解。<code>%left</code> 左关联标记，表示表达式的左边部分，需要再加上 lexer.go 产生的一个 token 构成右边部分，才可以组成一个完整的表达式。这里 <code>%left</code> 指定了运算符 <code>*</code>、 <code>/</code> 和 <code>%</code> 的优先级高于 <code>+</code> 和 <code>-</code>。在 yacc 中后面定义的行优先级会高于前面的行，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L32" target="_blank" rel="noopener">%right UNARY</a> 是处理负数的标记，优先级最高。</p>
 <p>规则部分语法使用了 BNF 范式，主要分析一下下面的代码：</p>
 <figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">expr: NUMBER</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;NumberExpression&#123;Lit: $1.lit&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| IDENT</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;IdentifierExpression&#123;Lit: $1.lit&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| <span class="string">'-'</span> expr      <span class="meta">%prec</span> UNARY</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;UnaryMinusExpression&#123;SubExpr: $2&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| <span class="string">'('</span> expr <span class="string">')'</span></span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;ParenExpression&#123;SubExpr: $2&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| expr <span class="string">'+'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'+'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'-'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'-'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'*'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'*'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'/'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'/'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'%'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'%'</span>), RHS: $3&#125; &#125;</span><br></pre></td></tr></table></figure>
 <p>假如我们现在解析字符串 <code>123</code>，通过 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 处理我们能得到：</p>
@@ -97,25 +97,6 @@
   </entry>
   
   <entry>
-    <title><![CDATA[我的英国旅行]]></title>
-    <link href="http://tigerforest.github.io/2015/09/03/UKTravel/"/>
-    <id>http://tigerforest.github.io/2015/09/03/UKTravel/</id>
-    <published>2015-09-02T16:49:00.000Z</published>
-    <updated>2018-11-25T11:29:20.487Z</updated>
-    <content type="html"><![CDATA[<p>已删除</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[英国旅行]]>
-    
-    </summary>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/tags/%E6%97%85%E6%B8%B8/"/>
-    
-      <category term="旅游" scheme="http://tigerforest.github.io/categories/%E6%97%85%E6%B8%B8/"/>
-    
-  </entry>
-  
-  <entry>
     <title><![CDATA[上海申请英国个人旅游签证分享]]></title>
     <link href="http://tigerforest.github.io/2015/07/30/UKVisa/"/>
     <id>http://tigerforest.github.io/2015/07/30/UKVisa/</id>
@@ -132,9 +113,9 @@
     
     </summary>
     
-      <category term="旅游" scheme="http://tigerforest.github.io/tags/%E6%97%85%E6%B8%B8/"/>
-    
       <category term="Visa" scheme="http://tigerforest.github.io/tags/Visa/"/>
+    
+      <category term="旅游" scheme="http://tigerforest.github.io/tags/%E6%97%85%E6%B8%B8/"/>
     
       <category term="旅游" scheme="http://tigerforest.github.io/categories/%E6%97%85%E6%B8%B8/"/>
     
