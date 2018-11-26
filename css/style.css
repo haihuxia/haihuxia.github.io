@@ -29,7 +29,7 @@ html {
 }
 
 body {
-    max-width: 95%;
+    max-width: 918px;
     padding: 0 20px;
     font: 400 16px/1.7 Georgia, "Xin Gothic", "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
     color: #444;
@@ -204,15 +204,15 @@ a:hover {
 
 .highlight pre {
 	background: #eff1f5 none repeat scroll 0% 0%;
-    margin: 0;
-    border: 0;
-    padding: 5px 12px;
-    overflow: auto;
-    line-height: 1.8;
-    font-size: 14px;
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    color: #65737e;
-    border-radius: 4px
+  margin: 0;
+  border: 0;
+  padding: 5px 12px;
+  overflow: auto;
+  line-height: 1.8;
+  font-size: 14px;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  color: #65737e;
+  border-radius: 4px
 }
 
 .highlight table {

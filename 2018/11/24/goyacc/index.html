@@ -3,10 +3,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>理解 Lex & Yacc</title>
+    <link rel="stylesheet"
+      href="/css/atom-one-light.css">
     <link rel="stylesheet" href="/css/style.css" media="screen"
           type="text/css">
-    <!-- <link href="/img/favicon.ico" rel="icon"> -->
+    <link href="/img/favicon.ico" rel="icon">
     <script type="text/javascript" src="/js/jquery.js"></script>
+    <script src="/js/highlight.pack.js"></script>
 </head>
 <body>
 <header class="mod-head">
@@ -39,51 +42,119 @@
 <p>上图是使用 Lex &amp; Yacc 解析 a = b + c * d 这段代码的流程。Lex 根据已定义的 patterns 生成词法分析器，将上面的代码解析为 id1 = id2 + id3 * id4 的 tokens。Yacc 根据已定义的 grammer 生成语法分析器，语法分析器以 Lex 输出的 tokens 作为输入，将 tokens 解析为语法树，最后对语法树进行遍历输出结果。</p>
 <p>如果我们想要定义一个新的程序语言，可以使用 Lex &amp; Yacc 的方式完成语法分析，然后再编写语法树执行部分就完成了。</p>
 <h3 id="Goyacc">Goyacc</h3><p><a href="https://godoc.org/golang.org/x/tools/cmd/goyacc" target="_blank" rel="noopener">Goyacc</a> 是 Go 语言版本的 Yacc。根据 Goyacc 的文档我们可以自己手写词法分析器，也就是手写 Lex 部分的实现，然后实现 Goyacc 的 yyLexer 接口就能得到想要的语法树，TiDB 正是这样做的。</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type yyLexer<span class="built_in"> interface </span>&#123;</span><br><span class="line">	Lex(lval *yySymType) int</span><br><span class="line">	<span class="builtin-name">Error</span>(e string)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="计算器例子">计算器例子</h3><p>我找到了一个使用 Goyacc 实现计算器的例子 <a href="https://github.com/draftcode/goyacc_sample" target="_blank" rel="noopener">goyacc_sample</a> 。但是只有代码没有其他说明，我希望我可以解释一下这个程序是怎么执行的。</p>
+<pre><code>type yyLexer interface {
+    Lex(lval *yySymType) int
+    Error(e string)
+}
+</code></pre><h3 id="计算器例子">计算器例子</h3><p>我找到了一个使用 Goyacc 实现计算器的例子 <a href="https://github.com/draftcode/goyacc_sample" target="_blank" rel="noopener">goyacc_sample</a> 。但是只有代码没有其他说明，我希望我可以解释一下这个程序是怎么执行的。</p>
 <p>goyacc_sample 将需要被解析执行的代码存放在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/sample.calc" target="_blank" rel="noopener">sample.calc</a> 文件中，内容：</p>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var a = <span class="number">123</span><span class="comment">;</span></span><br><span class="line">var <span class="keyword">b </span>= a + <span class="number">1</span><span class="comment">;</span></span><br><span class="line">a * (<span class="keyword">b </span>+ <span class="number">2</span> * a)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>运行主程序 calc.go ：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">go</span> <span class="selector-tag">run</span> <span class="selector-tag">calc</span><span class="selector-class">.go</span> <span class="selector-tag">sample</span><span class="selector-class">.calc</span></span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Assign</span> <span class="number">123</span> <span class="keyword">to</span> a</span><br><span class="line"><span class="built_in">Assign</span> <span class="number">124</span> <span class="keyword">to</span> b</span><br><span class="line"><span class="number">45510</span></span><br></pre></td></tr></table></figure>
-<p>可以看到 calc.go 程序执行了 sample.calc 里面的代码，并计算出了正确的结果。</p>
+<pre><code>var a = 123;
+var b = a + 1;
+a * (b + 2 * a);
+</code></pre><p>运行主程序 calc.go ：</p>
+<pre><code>go run calc.go sample.calc
+</code></pre><p>输出结果：</p>
+<pre><code>Assign 123 to a
+Assign 124 to b
+45510
+</code></pre><p>可以看到 calc.go 程序执行了 sample.calc 里面的代码，并计算出了正确的结果。</p>
 <p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 是词法分析器实现。其中 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 存储 sample.calc 文件中的所有字符，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法逐字读取解析并返回 Goyacc 需要的 tokens。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L12" target="_blank" rel="noopener">Position</a> 存储字符读取的位置，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 会将 token 和当前已读取到的位置一起返回。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L8" target="_blank" rel="noopener">keywords</a> 限定了 <code>var</code> 字符，声明一个变量只允许使用 <code>var</code> 字符。</p>
 <p>重点关注 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Scanner)</span> <span class="title">Scan</span><span class="params">()</span> <span class="params">(tok <span class="keyword">int</span>, lit <span class="keyword">string</span>, pos Position)</span></span> &#123;</span><br><span class="line">	s.skipWhiteSpace()</span><br><span class="line">	pos = s.position()</span><br><span class="line">	<span class="keyword">switch</span> ch := s.peek(); &#123;</span><br><span class="line">	<span class="keyword">case</span> isLetter(ch):</span><br><span class="line">		lit = s.scanIdentifier()</span><br><span class="line">		<span class="keyword">if</span> keyword, ok := keywords[lit]; ok &#123;</span><br><span class="line">			tok = keyword</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			tok = IDENT</span><br><span class="line">		&#125;</span><br><span class="line">	<span class="keyword">case</span> isDigit(ch):</span><br><span class="line">		tok, lit = NUMBER, s.scanNumber()</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="keyword">switch</span> ch &#123;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">-1</span>:</span><br><span class="line">			tok = EOF</span><br><span class="line">		<span class="keyword">case</span> <span class="string">'('</span>, <span class="string">')'</span>, <span class="string">';'</span>, <span class="string">'+'</span>, <span class="string">'-'</span>, <span class="string">'*'</span>, <span class="string">'/'</span>, <span class="string">'%'</span>, <span class="string">'='</span>:</span><br><span class="line">			tok = <span class="keyword">int</span>(ch)</span><br><span class="line">			lit = <span class="keyword">string</span>(ch)</span><br><span class="line">		&#125;</span><br><span class="line">		s.next()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里可以看到返回的 tok 是 int 类型，是一个唯一的数字，IDENT、NUMBER、VAR 的值是多少暂时不用关注。EOF 的值为 -1 代表结束，tok 的值还有这些符号 <code>(</code>、<code>)</code>、 <code>;</code>、 <code>+</code>、 <code>-</code>、 <code>*</code>、 <code>/</code>、 <code>%</code>、 <code>=</code> 转换成 int 后的值。</p>
+<pre><code>func (s *Scanner) Scan() (tok int, lit string, pos Position) {
+    s.skipWhiteSpace()
+    pos = s.position()
+    switch ch := s.peek(); {
+    case isLetter(ch):
+        lit = s.scanIdentifier()
+        if keyword, ok := keywords[lit]; ok {
+            tok = keyword
+        } else {
+            tok = IDENT
+        }
+    case isDigit(ch):
+        tok, lit = NUMBER, s.scanNumber()
+    default:
+        switch ch {
+        case -1:
+            tok = EOF
+        case &#39;(&#39;, &#39;)&#39;, &#39;;&#39;, &#39;+&#39;, &#39;-&#39;, &#39;*&#39;, &#39;/&#39;, &#39;%&#39;, &#39;=&#39;:
+            tok = int(ch)
+            lit = string(ch)
+        }
+        s.next()
+    }
+    return
+}
+</code></pre><p>这里可以看到返回的 tok 是 int 类型，是一个唯一的数字，IDENT、NUMBER、VAR 的值是多少暂时不用关注。EOF 的值为 -1 代表结束，tok 的值还有这些符号 <code>(</code>、<code>)</code>、 <code>;</code>、 <code>+</code>、 <code>-</code>、 <code>*</code>、 <code>/</code>、 <code>%</code>、 <code>=</code> 转换成 int 后的值。</p>
 <p>另外，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L100" target="_blank" rel="noopener">scanIdentifier()</a> 的方法依次读取以字母和下划线开头的字符，并可以包含 [0-9] 的整数数字，直到读取到非字母、下划线、[0-9] 的整数即结束。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L109" target="_blank" rel="noopener">scanNumber()</a> 读取 [0-9] 的整数数字，直到非 [0-9]的整数数字即结束。</p>
 <p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 处理 <code>var a = 123;</code> 这样一段字符代码，我们以下 tokens:</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">tok:</span> VAR,    <span class="string">lit:</span> <span class="string">"var"</span>,  &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">1</span>&#125;</span><br><span class="line"><span class="string">tok:</span> IDENT,  <span class="string">lit:</span> <span class="string">"a"</span>,    &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">5</span>&#125;</span><br><span class="line"><span class="string">tok:</span> <span class="number">61</span>,     <span class="string">lit:</span> <span class="string">"="</span>,    &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">7</span>&#125;</span><br><span class="line"><span class="string">tok:</span> NUMBER, <span class="string">lit:</span> <span class="string">"123"</span>,  &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">9</span>&#125;</span><br><span class="line"><span class="string">tok:</span> <span class="number">59</span>,     <span class="string">lit:</span> <span class="string">";"</span>,    &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">12</span>&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 对输入的字符做了限制，词法分析器的作用就是规定能够识别的字符，然后为语法分析器提取 tokens。</p>
+<pre><code>tok: VAR,    lit: &quot;var&quot;,  {Line: 1, Column: 1}
+tok: IDENT,  lit: &quot;a&quot;,    {Line: 1, Column: 5}
+tok: 61,     lit: &quot;=&quot;,    {Line: 1, Column: 7}
+tok: NUMBER, lit: &quot;123&quot;,  {Line: 1, Column: 9}
+tok: 59,     lit: &quot;;&quot;,    {Line: 1, Column: 12}
+</code></pre><p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 对输入的字符做了限制，词法分析器的作用就是规定能够识别的字符，然后为语法分析器提取 tokens。</p>
 <p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/ast.go" target="_blank" rel="noopener">ast.go</a> （Abstract Syntax Tree）定义了语法树的组成。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go" target="_blank" rel="noopener">parser.go</a> 是语法解析实现，这个文件是用 Goyacc 工具生成的，同时生成的文件还有 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.output" target="_blank" rel="noopener">parser.output</a>。生成文件的命令在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/Makefile" target="_blank" rel="noopener">Makefile</a> 中：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go<span class="built_in"> tool </span>yacc -o parser.go -v parser.output parser.go.y</span><br></pre></td></tr></table></figure>
-<p>这段命令在 go 1.8 或者更高版本无法执行，因为 go 1.8 移除了 yacc 工具，可以使用 Goyacc：</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">goyacc -o parser<span class="selector-class">.go</span> -v parser<span class="selector-class">.output</span> parser<span class="selector-class">.go</span><span class="selector-class">.y</span></span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go" target="_blank" rel="noopener">parser.go</a> 和 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.output" target="_blank" rel="noopener">parser.output</a> 都是根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 文件生成的。前面我们说过 Yacc 根据已定义的 grammer 生成语法分析器，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 为我们定义的语法文件，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go" target="_blank" rel="noopener">parser.go</a> 即为语法分析器实现。</p>
+<pre><code>go tool yacc -o parser.go -v parser.output parser.go.y
+</code></pre><p>这段命令在 go 1.8 或者更高版本无法执行，因为 go 1.8 移除了 yacc 工具，可以使用 Goyacc：</p>
+<pre><code>goyacc -o parser.go -v parser.output parser.go.y
+</code></pre><p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go" target="_blank" rel="noopener">parser.go</a> 和 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.output" target="_blank" rel="noopener">parser.output</a> 都是根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 文件生成的。前面我们说过 Yacc 根据已定义的 grammer 生成语法分析器，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 为我们定义的语法文件，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go" target="_blank" rel="noopener">parser.go</a> 即为语法分析器实现。</p>
 <p>Yacc 语法文件分为 3 个部分，以两个相临 %% 隔开，Goyacc 语法文件遵循同样的定义。</p>
-<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">声明</span><br><span class="line"><span class="meta">%</span><span class="meta">%</span></span><br><span class="line">规则</span><br><span class="line"><span class="meta">%</span><span class="meta">%</span></span><br><span class="line">程序</span><br></pre></td></tr></table></figure>
-<p>下面这些都是 Yacc 语法文件关键字，只列出了需要用到的：</p>
-<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">%<span class="class"><span class="keyword">union</span> /* 将 <span class="title">yacc</span> 值堆栈标识为所需值的各种不同类型的并集 */</span></span><br><span class="line">%<span class="keyword">type</span> /* 标识非终止符的类型 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%token /</span>* 标识 yacc 命令接受的标记名称 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%left /</span>* 标识与其他标记左关联的标记 *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">%right /</span>* 标识与其他标记右关联的标记 *<span class="regexp">/</span></span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 的声明部分引入 go 代码定义了 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L9" target="_blank" rel="noopener">Token</a> 结构，有三个属性，正好就是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法输出的结果。Goyacc 会根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的定义来生成 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 结构，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 主要作用是获取当前解析到的字符串对象。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 尖括号中的 <code>statements</code> 实际上是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L18" target="_blank" rel="noopener">statements</a>，类型是 <code>[]Statement</code>，而 <code>Statement</code> 是在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/ast.go" target="_blank" rel="noopener">ast.go</a> 中定义的。所以 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 就是定义了一个名为 statements，类型为 ast.Statement 数组的标记。后面几个 %type 和 %token 都可以这么理解。<code>%left</code> 左关联标记，表示表达式的左边部分，需要再加上 lexer.go 产生的一个 token 构成右边部分，才可以组成一个完整的表达式。这里 <code>%left</code> 指定了运算符 <code>*</code>、 <code>/</code> 和 <code>%</code> 的优先级高于 <code>+</code> 和 <code>-</code>。在 yacc 中后面定义的行优先级会高于前面的行，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L32" target="_blank" rel="noopener">%right UNARY</a> 是处理负数的标记，优先级最高。</p>
+<pre><code>声明
+%%
+规则
+%%
+程序
+</code></pre><p>下面这些都是 Yacc 语法文件关键字，只列出了需要用到的：</p>
+<pre><code>%union /* 将 yacc 值堆栈标识为所需值的各种不同类型的并集 */
+%type /* 标识非终止符的类型 */
+%token /* 标识 yacc 命令接受的标记名称 */
+%left /* 标识与其他标记左关联的标记 */
+%right /* 标识与其他标记右关联的标记 */
+</code></pre><p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y" target="_blank" rel="noopener">parser.go.y</a> 的声明部分引入 go 代码定义了 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L9" target="_blank" rel="noopener">Token</a> 结构，有三个属性，正好就是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L17" target="_blank" rel="noopener">Scanner</a> 的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go#L28" target="_blank" rel="noopener">Scan()</a> 方法输出的结果。Goyacc 会根据 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的定义来生成 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 结构，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go#L19" target="_blank" rel="noopener">yySymType</a> 主要作用是获取当前解析到的字符串对象。<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 尖括号中的 <code>statements</code> 实际上是 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L17" target="_blank" rel="noopener">%union</a> 中的 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L18" target="_blank" rel="noopener">statements</a>，类型是 <code>[]Statement</code>，而 <code>Statement</code> 是在 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/ast.go" target="_blank" rel="noopener">ast.go</a> 中定义的。所以 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L24" target="_blank" rel="noopener">%type&lt;statements&gt; statements</a> 就是定义了一个名为 statements，类型为 ast.Statement 数组的标记。后面几个 %type 和 %token 都可以这么理解。<code>%left</code> 左关联标记，表示表达式的左边部分，需要再加上 lexer.go 产生的一个 token 构成右边部分，才可以组成一个完整的表达式。这里 <code>%left</code> 指定了运算符 <code>*</code>、 <code>/</code> 和 <code>%</code> 的优先级高于 <code>+</code> 和 <code>-</code>。在 yacc 中后面定义的行优先级会高于前面的行，<a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L32" target="_blank" rel="noopener">%right UNARY</a> 是处理负数的标记，优先级最高。</p>
 <p>规则部分语法使用了 BNF 范式，主要分析一下下面的代码：</p>
-<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">expr: NUMBER</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;NumberExpression&#123;Lit: $1.lit&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| IDENT</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;IdentifierExpression&#123;Lit: $1.lit&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| <span class="string">'-'</span> expr      <span class="meta">%prec</span> UNARY</span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;UnaryMinusExpression&#123;SubExpr: $2&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| <span class="string">'('</span> expr <span class="string">')'</span></span><br><span class="line">	&#123;</span><br><span class="line">		$$ = &amp;ParenExpression&#123;SubExpr: $2&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	| expr <span class="string">'+'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'+'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'-'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'-'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'*'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'*'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'/'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'/'</span>), RHS: $3&#125; &#125;</span><br><span class="line">	| expr <span class="string">'%'</span> expr</span><br><span class="line">	&#123; $$ = &amp;BinOpExpression&#123;LHS: $1, Operator: int(<span class="string">'%'</span>), RHS: $3&#125; &#125;</span><br></pre></td></tr></table></figure>
-<p>假如我们现在解析字符串 <code>123</code>，通过 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 处理我们能得到：</p>
- <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">tok:</span> NUMBER, <span class="string">lit:</span> <span class="string">'123'</span>,  &#123;<span class="string">Line:</span> <span class="number">1</span>, <span class="string">Column:</span> <span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
-<p>可以匹配第一条规则，得到 <code>&amp;NumberExpression{Lit: &quot;123&quot;}</code>。规则部分竖杆当作 “或” 来理解就可以了。</p>
+<pre><code>expr: NUMBER
+    {
+        $$ = &amp;NumberExpression{Lit: $1.lit}
+    }
+    | IDENT
+    {
+        $$ = &amp;IdentifierExpression{Lit: $1.lit}
+    }
+    | &#39;-&#39; expr      %prec UNARY
+    {
+        $$ = &amp;UnaryMinusExpression{SubExpr: $2}
+    }
+    | &#39;(&#39; expr &#39;)&#39;
+    {
+        $$ = &amp;ParenExpression{SubExpr: $2}
+    }
+    | expr &#39;+&#39; expr
+    { $$ = &amp;BinOpExpression{LHS: $1, Operator: int(&#39;+&#39;), RHS: $3} }
+    | expr &#39;-&#39; expr
+    { $$ = &amp;BinOpExpression{LHS: $1, Operator: int(&#39;-&#39;), RHS: $3} }
+    | expr &#39;*&#39; expr
+    { $$ = &amp;BinOpExpression{LHS: $1, Operator: int(&#39;*&#39;), RHS: $3} }
+    | expr &#39;/&#39; expr
+    { $$ = &amp;BinOpExpression{LHS: $1, Operator: int(&#39;/&#39;), RHS: $3} }
+    | expr &#39;%&#39; expr
+    { $$ = &amp;BinOpExpression{LHS: $1, Operator: int(&#39;%&#39;), RHS: $3} }
+</code></pre><p>假如我们现在解析字符串 <code>123</code>，通过 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/lexer.go" target="_blank" rel="noopener">lexer.go</a> 处理我们能得到：</p>
+<pre><code> tok: NUMBER, lit: &#39;123&#39;,  {Line: 1, Column: 1}
+</code></pre><p>可以匹配第一条规则，得到 <code>&amp;NumberExpression{Lit: &quot;123&quot;}</code>。规则部分竖杆当作 “或” 来理解就可以了。</p>
 <p>程序部分 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L91" target="_blank" rel="noopener">LexerWrapper</a> 实现了 Goyacc 的 yyLexer 接口，然后定义了语法解析器的入口 <a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/parser.go.y#L114" target="_blank" rel="noopener">Parse(s *Scanner)</a>，该方法返回结果就是语法树数组。</p>
 <p><a href="https://github.com/draftcode/goyacc_sample/blob/master/calc/evaluator.go" target="_blank" rel="noopener">evaluator.go</a> 递归遍历执行语法树得到结果。</p>
 <p><a href="https://github.com/draftcode/goyacc_sample" target="_blank" rel="noopener">goyacc_sample</a> 是一个完整的 Lex &amp; Yacc 实现例子，配合作者写的单元测试能够更好的理解。</p>
 <p>输入：</p>
-<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VAR abc<span class="comment">;</span></span><br></pre></td></tr></table></figure>
-<p>输出：</p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Line</span> 1, Column 5: <span class="string">"abc"</span> <span class="keyword">syntax</span> <span class="keyword">error</span></span><br></pre></td></tr></table></figure></div>
+<pre><code>VAR abc;
+</code></pre><p>输出：</p>
+<pre><code>Line 1, Column 5: &quot;abc&quot; syntax error
+</code></pre></div>
     <div class="mod-post__meta">
         <div>
-            <!-- <div>
-                — 于
-                <time datetime="2012年03月11日 01:37:13">Sat Nov 24 2018 08:42:00 GMT+0800</time>
-            </div> -->
+            <div>
+                于 2018 年 11 月 24 日
+            </div>
             <!-- <div>— 文内使用到的标签：<span class="mod_tag"></span></div> -->
         </div>
     </div>
@@ -98,5 +169,8 @@
     <p class="f_bq">Fusuxia 2015 - 2016</p>
 </footer> -->
 
+<script type="text/javascript">
+  hljs.initHighlightingOnLoad();
+</script>
 </body></html>
  
